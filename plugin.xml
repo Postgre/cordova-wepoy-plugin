@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='utf-8'?>
+<plugin id="cordova-wepoy-plugin" version="0.0.1" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+  <name>Wepoy</name>
+  <js-module name="Wepoy" src="www/Wepoy.js">
+    <clobbers target="cordova.plugins.Wepoy" />
+  </js-module>
+  <platform name="android">
+    <config-file parent="/*" target="res/xml/config.xml">
+      <feature name="Wepoy">
+        <param name="android-package" value="wepoy.Wepoy" />
+      </feature>
+    </config-file>
+    <config-file parent="/*" target="AndroidManifest.xml">
+    </config-file>
+    <source-file src="src/android/Wepoy.java" target-dir="src/cordova-wepoy-plugin/Wepoy" />
+    <source-file src="src/android/platform_sdk_v2.3.406.jar" target-dir="libs/" />
+  </platform>
+</plugin>
