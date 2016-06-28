@@ -7,3 +7,12 @@ exports.printSomething = function(text, success, error) {
 exports.scanSomething = function(success, error) {
     exec(success, error, "Wepoy", "scanSomething", []);
 };
+
+exports.listenToScan = function(success, error) {
+    exec(success, error, "Wepoy", "listenToScan", []);
+};
+
+
+exports.scanMagCard = function(success, error) {
+    exec(success, error, "Wepoy", "scanMagCard", []);
+};

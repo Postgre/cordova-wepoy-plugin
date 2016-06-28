@@ -10,8 +10,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+// printer
 import android.device.PrinterManager;
 
+// scanner
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -20,6 +22,10 @@ import android.content.IntentFilter;
 
 import android.device.ScanManager;
 import android.device.scanner.configuration.Triggering;
+
+// card reader
+import android.device.MagManager;
+
 /**
  * This class echoes a string called from JavaScript.
  */
@@ -59,10 +65,12 @@ public class Wepoy extends CordovaPlugin {
               scanSuccessCallback.sendPluginResult(new PluginResult(PluginResult.Status.OK, json));
             } catch (JSONException e) {
                 //some exception handler code.
-            }  
+            }
 
             // scanSuccessCallback.success(barcodeStr);
-            mScanManager.closeScanner();
+            // mScanManager.closeScanner();
+            // mScanManager.stopDecode();
+            // scanSomething(scanSuccessCallback);
         }
 
     };
@@ -87,6 +95,22 @@ public class Wepoy extends CordovaPlugin {
                 mScanManager.setTriggerMode(Triggering.CONTINUOUS);
 
             this.scanSomething(callbackContext);
+            return true;
+        }
+
+        if (action.equals("listenToScan")) {
+            mScanManager = new ScanManager();
+            mScanManager.openScanner();
+            mScanManager.switchOutputMode( 0);
+            if(mScanManager.getTriggerMode() != Triggering.CONTINUOUS)
+                mScanManager.setTriggerMode(Triggering.CONTINUOUS);
+
+            listenToScan(callbackContext);
+            return true;
+        }
+
+        if (action.equals("scanMagCard")) {
+            scanMagCard(callbackContext);
             return true;
         }
 
@@ -115,11 +139,20 @@ public class Wepoy extends CordovaPlugin {
     }
 
     private void scanSomething(CallbackContext callbackContext) {
+        listenToScan(callbackContext);
         mScanManager.startDecode();
-
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(SCAN_ACTION);
-        webView.getContext().registerReceiver(mScanReceiver, filter);
-        scanSuccessCallback = callbackContext;
     }
+
+    private void listenToScan(CallbackContext callbackContext) {
+      IntentFilter filter = new IntentFilter();
+      filter.addAction(SCAN_ACTION);
+      webView.getContext().registerReceiver(mScanReceiver, filter);
+      scanSuccessCallback = callbackContext;
+    }
+
+    private void scanMagCard(CallbackContext callbackContext) {
+      MagReadService mReadService = new MagReadService(webView.getContext(), callbackContext);
+      mReadService.start();
+    }
+
 }
