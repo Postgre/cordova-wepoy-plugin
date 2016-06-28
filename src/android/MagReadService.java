@@ -66,7 +66,7 @@ public class MagReadService {
     public synchronized void stop() {
         if(magManager != null) {
             magManager.close();
-            //magManager = null;
+            // magManager = null;
         }
         if(magReaderThread != null) {
             magReaderThread.stopMagReader();
@@ -140,6 +140,7 @@ public class MagReadService {
                         // msg.setData(bundle);
                         // mHandler.sendMessage(msg);
                         callbackContext.success(trackOne.toString());
+                        stopMagReader();
                     }
                     trackOne = null;
                 }
