@@ -12,6 +12,6 @@ exports.scanBarcode = function(success, error) {
     exec(success, error, "Wepoy", "scanBarcode", []);
 };
 
-exports.stopBarcodeScanner = function(success, error) {
-    exec(success, error, "Wepoy", "stopBarcodeScanner", []);
+exports.enableScanner = function(success, error) {
+    exec(success, error, "Wepoy", "enableScanner", []);
 };

@@ -56,6 +56,8 @@ public class Wepoy extends CordovaPlugin {
               json.put("barcode_str", barcodeStr);
 
               scanSuccessCallback.sendPluginResult(new PluginResult(PluginResult.Status.OK, json));
+              mScanManager.stopDecode();
+              mScanManager.closeScanner();
             } catch (JSONException e) {
                 //some exception handler code.
             }
@@ -87,6 +89,17 @@ public class Wepoy extends CordovaPlugin {
             return true;
         }
 
+        if (action.equals("enableScanner")) {
+            mScanManager = new ScanManager();
+            mScanManager.openScanner();
+            mScanManager.switchOutputMode(0);
+            if(mScanManager.getTriggerMode() != Triggering.CONTINUOUS)
+                mScanManager.setTriggerMode(Triggering.CONTINUOUS);
+
+            this.enableScanner(callbackContext);
+            return true;
+        }
+
         if (action.equals("listenToScan")) {
             mScanManager = new ScanManager();
             mScanManager.openScanner();
@@ -94,18 +107,12 @@ public class Wepoy extends CordovaPlugin {
             if(mScanManager.getTriggerMode() != Triggering.CONTINUOUS)
                 mScanManager.setTriggerMode(Triggering.CONTINUOUS);
 
-            listenToScan(callbackContext);
+            this.listenToScan(callbackContext);
             return true;
         }
-
-        if (action.equals("stopBarcodeScanner")) {
-            mScanManager = new ScanManager();
-            return true;
-        }
-
 
         if (action.equals("scanMagneticStripe")) {
-            scanMagneticStripe(callbackContext);
+            this.scanMagneticStripe(callbackContext);
             return true;
         }
 
@@ -135,15 +142,13 @@ public class Wepoy extends CordovaPlugin {
 
     private void scanBarcode(CallbackContext callbackContext) {
         listenToScan(callbackContext);
-        mScanManager.startDecode();
+        // mScanManager.startDecode();
     }
 
-    private void stopBarcodeScanner(CallbackContext callbackContext) {
-        mScanManager.stopDecode();
-        mScanManager.closeScanner();
+    private void enableScanner(CallbackContext callbackContext) {
+        mScanManager.startDecode();
         callbackContext.success("OK");
     }
-
 
     private void listenToScan(CallbackContext callbackContext) {
       IntentFilter filter = new IntentFilter();
