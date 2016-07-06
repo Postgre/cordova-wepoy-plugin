@@ -79,7 +79,7 @@ public class Wepoy extends CordovaPlugin {
         if (action.equals("scanBarcode")) {
             mScanManager = new ScanManager();
             mScanManager.openScanner();
-            mScanManager.switchOutputMode( 0);
+            mScanManager.switchOutputMode(0);
             if(mScanManager.getTriggerMode() != Triggering.CONTINUOUS)
                 mScanManager.setTriggerMode(Triggering.CONTINUOUS);
 
@@ -97,6 +97,12 @@ public class Wepoy extends CordovaPlugin {
             listenToScan(callbackContext);
             return true;
         }
+
+        if (action.equals("stopBarcodeScanner")) {
+            mScanManager = new ScanManager();
+            return true;
+        }
+
 
         if (action.equals("scanMagneticStripe")) {
             scanMagneticStripe(callbackContext);
@@ -131,6 +137,13 @@ public class Wepoy extends CordovaPlugin {
         listenToScan(callbackContext);
         mScanManager.startDecode();
     }
+
+    private void stopBarcodeScanner(CallbackContext callbackContext) {
+        mScanManager.stopDecode();
+        mScanManager.closeScanner();
+        callbackContext.success("OK");
+    }
+
 
     private void listenToScan(CallbackContext callbackContext) {
       IntentFilter filter = new IntentFilter();
