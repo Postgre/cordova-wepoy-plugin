@@ -2,7 +2,7 @@ Printer
 =======
 
 
-printSomething(text)
+print(text)
 
 printTicket(lines)
 lines = [

@@ -1,18 +1,13 @@
 var exec = require('cordova/exec');
 
-exports.printSomething = function(text, success, error) {
-    exec(success, error, "Wepoy", "printSomething", [text]);
+exports.print = function(text, success, error) {
+    exec(success, error, "Wepoy", "print", [text]);
 };
 
-exports.scanSomething = function(success, error) {
-    exec(success, error, "Wepoy", "scanSomething", []);
+exports.scanBarcode = function(success, error) {
+    exec(success, error, "Wepoy", "scanBarcode", []);
 };
 
-exports.listenToScan = function(success, error) {
-    exec(success, error, "Wepoy", "listenToScan", []);
-};
-
-
-exports.scanMagCard = function(success, error) {
-    exec(success, error, "Wepoy", "scanMagCard", []);
+exports.scanMagneticStripe = function(success, error) {
+    exec(success, error, "Wepoy", "scanMagneticStripe", []);
 };

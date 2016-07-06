@@ -50,13 +50,6 @@ public class Wepoy extends CordovaPlugin {
             byte temp = intent.getByteExtra("barcodeType", (byte) 0);
             android.util.Log.i("debug", "----codetype--" + temp);
 
-
-            // showScanResult.setText(barcodeStr);
-            // fire callback to scanSomething
-            // String[] response;
-            // response[0] = "" + temp;
-            // response[1] = barcodeStr;
-
             try {
               JSONObject json = new JSONObject();
               json.put("barcode_type", temp);
@@ -67,10 +60,6 @@ public class Wepoy extends CordovaPlugin {
                 //some exception handler code.
             }
 
-            // scanSuccessCallback.success(barcodeStr);
-            // mScanManager.closeScanner();
-            // mScanManager.stopDecode();
-            // scanSomething(scanSuccessCallback);
         }
 
     };
@@ -79,22 +68,22 @@ public class Wepoy extends CordovaPlugin {
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         printer = new PrinterManager();
-        if (action.equals("printSomething")) {
+        if (action.equals("print")) {
             String message = args.getString(0);
             int printerOpened = printer.open();
 
-            this.printSomething(message + " " + printerOpened, callbackContext);
+            this.print(message + " " + printerOpened, callbackContext);
             return true;
         }
 
-        if (action.equals("scanSomething")) {
+        if (action.equals("scanBarcode")) {
             mScanManager = new ScanManager();
             mScanManager.openScanner();
             mScanManager.switchOutputMode( 0);
             if(mScanManager.getTriggerMode() != Triggering.CONTINUOUS)
                 mScanManager.setTriggerMode(Triggering.CONTINUOUS);
 
-            this.scanSomething(callbackContext);
+            this.scanBarcode(callbackContext);
             return true;
         }
 
@@ -109,8 +98,8 @@ public class Wepoy extends CordovaPlugin {
             return true;
         }
 
-        if (action.equals("scanMagCard")) {
-            scanMagCard(callbackContext);
+        if (action.equals("scanMagneticStripe")) {
+            scanMagneticStripe(callbackContext);
             return true;
         }
 
@@ -121,7 +110,7 @@ public class Wepoy extends CordovaPlugin {
         super.initialize(cordova, webView);
     }
 
-    private void printSomething(String message, CallbackContext callbackContext) {
+    private void print(String message, CallbackContext callbackContext) {
         if (message != null && message.length() > 0) {
             int ret;
             printer.setupPage(384, -1);
@@ -138,7 +127,7 @@ public class Wepoy extends CordovaPlugin {
         }
     }
 
-    private void scanSomething(CallbackContext callbackContext) {
+    private void scanBarcode(CallbackContext callbackContext) {
         listenToScan(callbackContext);
         mScanManager.startDecode();
     }
@@ -150,7 +139,7 @@ public class Wepoy extends CordovaPlugin {
       scanSuccessCallback = callbackContext;
     }
 
-    private void scanMagCard(CallbackContext callbackContext) {
+    private void scanMagneticStripe(CallbackContext callbackContext) {
       MagReadService mReadService = new MagReadService(webView.getContext(), callbackContext);
       mReadService.start();
     }
