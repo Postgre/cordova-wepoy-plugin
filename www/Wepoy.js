@@ -8,6 +8,10 @@ exports.printCode = function(text, codeType, success, error) {
     exec(success, error, "Wepoy", "printCode", [text, codeType]);
 };
 
+exports.paperFeed = function(amount, success, error) {
+    exec(success, error, "Wepoy", "paperFeed", [amount]);
+};
+
 exports.scanMagneticStripe = function(success, error) {
     exec(success, error, "Wepoy", "scanMagneticStripe", []);
 };

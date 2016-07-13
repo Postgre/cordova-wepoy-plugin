@@ -78,12 +78,20 @@ public class Wepoy extends CordovaPlugin {
             return true;
         }
 
-        if (action.equals("printLine")) {
+        if (action.equals("printCode")) {
             String message = args.getString(0);
-            int codeType = args.getString(1);
+            int codeType = args.getInt(1);
             int printerOpened = printer.open();
 
             this.printCode(message, codeType, callbackContext);
+            return true;
+        }
+
+        if (action.equals("paperFeed")) {
+            int amount = args.getInt(0);
+            int printerOpened = printer.open();
+
+            this.paperFeed(amount, callbackContext);
             return true;
         }
 
@@ -151,7 +159,10 @@ public class Wepoy extends CordovaPlugin {
         if (message != null && message.length() > 0) {
             int ret;
             printer.setupPage(384, -1);
-            printer.prn_drawBarcode(message, 196, 300, codeType, 2, 70, 0);
+            int bcret = printer.drawBarcode(message, 100, 10, codeType, 8, 240, 0);
+            if (bcret == -1 ) {
+              callbackContext.error("Code printing error");
+            }
             ret = printer.printPage(0);
 
             int status  = printer.getStatus();
@@ -161,6 +172,13 @@ public class Wepoy extends CordovaPlugin {
             callbackContext.error("Expected one non-empty string argument.");
         }
     }
+
+    private void paperFeed(int amount,CallbackContext callbackContext) {
+      printer.paperFeed(amount);
+      callbackContext.success("paperFeed successful");
+    }
+
+
 
     private void scanBarcode(CallbackContext callbackContext) {
         listenToScan(callbackContext);
