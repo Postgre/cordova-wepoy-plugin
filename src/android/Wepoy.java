@@ -70,11 +70,20 @@ public class Wepoy extends CordovaPlugin {
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         printer = new PrinterManager();
-        if (action.equals("print")) {
+        if (action.equals("printLine")) {
             String message = args.getString(0);
             int printerOpened = printer.open();
 
-            this.print(message + " " + printerOpened, callbackContext);
+            this.printLine(message, callbackContext);
+            return true;
+        }
+
+        if (action.equals("printLine")) {
+            String message = args.getString(0);
+            int codeType = args.getString(1);
+            int printerOpened = printer.open();
+
+            this.printCode(message, codeType, callbackContext);
             return true;
         }
 
@@ -123,13 +132,26 @@ public class Wepoy extends CordovaPlugin {
         super.initialize(cordova, webView);
     }
 
-    private void print(String message, CallbackContext callbackContext) {
+    private void printLine(String message, CallbackContext callbackContext) {
         if (message != null && message.length() > 0) {
             int ret;
             printer.setupPage(384, -1);
-            // printer.drawText("hello", 5, 0, "arial", 23, false, false, 0);
-
             ret = printer.drawTextEx(message, 5, 0,384,-1, "arial", 24, 0, 0, 0);
+            ret = printer.printPage(0);
+
+            int status  = printer.getStatus();
+
+            callbackContext.success(message + " printPage: " + ret + " status: " + status);
+        } else {
+            callbackContext.error("Expected one non-empty string argument.");
+        }
+    }
+
+    private void printCode(String message, int codeType, CallbackContext callbackContext) {
+        if (message != null && message.length() > 0) {
+            int ret;
+            printer.setupPage(384, -1);
+            printer.prn_drawBarcode(message, 196, 300, codeType, 2, 70, 0);
             ret = printer.printPage(0);
 
             int status  = printer.getStatus();

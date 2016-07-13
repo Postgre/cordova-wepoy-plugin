@@ -1,7 +1,11 @@
 var exec = require('cordova/exec');
 
-exports.print = function(text, success, error) {
-    exec(success, error, "Wepoy", "print", [text]);
+exports.printLine = function(text, success, error) {
+    exec(success, error, "Wepoy", "printLine", [text]);
+};
+
+exports.printCode = function(text, codeType, success, error) {
+    exec(success, error, "Wepoy", "printCode", [text, codeType]);
 };
 
 exports.scanMagneticStripe = function(success, error) {
