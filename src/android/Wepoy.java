@@ -144,7 +144,7 @@ public class Wepoy extends CordovaPlugin {
         if (message != null && message.length() > 0) {
             int ret;
             printer.setupPage(384, -1);
-            ret = printer.drawTextEx(message, 5, 0,384,-1, "arial", 24, 0, 0, 0);
+            ret = printer.drawTextEx(message, 0, 0, 384, -1, "courier", 21, 0, 0, 0);
             ret = printer.printPage(0);
 
             int status  = printer.getStatus();
