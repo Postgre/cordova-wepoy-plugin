@@ -11,9 +11,15 @@
       </feature>
     </config-file>
     <config-file parent="/*" target="AndroidManifest.xml">
+      <receiver android:enabled="true" android:exported="true" android:name="wepoy.BarcodeReceiver">
+        <intent-filter>
+            <action android:name="android.intent.ACTION_DECODE_DATA" />
+        </intent-filter>
+      </receiver>
     </config-file>
     <source-file src="src/android/Wepoy.java" target-dir="src/cordova-wepoy-plugin/Wepoy" />
     <source-file src="src/android/MagReadService.java" target-dir="src/cordova-wepoy-plugin/Wepoy" />
+    <source-file src="src/android/BarcodeReceiver.java" target-dir="src/cordova-wepoy-plugin/Wepoy" />
     <source-file src="src/android/platform_sdk_v2.3.406.jar" target-dir="libs/" />
   </platform>
 </plugin>

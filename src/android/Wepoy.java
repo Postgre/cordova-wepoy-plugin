@@ -39,21 +39,14 @@ public class Wepoy extends CordovaPlugin {
     private ScanManager mScanManager;
     private String barcodeStr;
     private CallbackContext scanSuccessCallback;
-    private BroadcastReceiver mScanReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            byte[] barcode = intent.getByteArrayExtra("barcode");
-            int barocodelen = intent.getIntExtra("length", 0);
-            barcodeStr = new String(barcode, 0, barocodelen);
-
-            byte temp = intent.getByteExtra("barcodeType", (byte) 0);
-            android.util.Log.i("debug", "----codetype--" + temp);
+    private BroadcastReceiver mScanReceiver = new BarcodeReceiver() {
+      @Override
+      public void sendBarcode(Context context, String barcode) {
+        android.util.Log.i("debug", "Sending barcode via CordovaPlugin");
 
             try {
               JSONObject json = new JSONObject();
-              json.put("barcode_type", temp);
-              json.put("barcode_str", barcodeStr);
+              json.put("barcode_str", barcode);
 
               scanSuccessCallback.sendPluginResult(new PluginResult(PluginResult.Status.OK, json));
               mScanManager.stopDecode();
@@ -61,10 +54,35 @@ public class Wepoy extends CordovaPlugin {
             } catch (JSONException e) {
                 //some exception handler code.
             }
-
-        }
-
+      }
     };
+
+    // private BroadcastReceiver mScanReceiver = new BroadcastReceiver() {
+    //
+    //     @Override
+    //     public void onReceive(Context context, Intent intent) {
+    //         byte[] barcode = intent.getByteArrayExtra("barcode");
+    //         int barocodelen = intent.getIntExtra("length", 0);
+    //         barcodeStr = new String(barcode, 0, barocodelen);
+    //
+    //         byte temp = intent.getByteExtra("barcodeType", (byte) 0);
+    //         android.util.Log.i("debug", "----codetype--" + temp);
+    //
+    //         try {
+    //           JSONObject json = new JSONObject();
+    //           json.put("barcode_type", temp);
+    //           json.put("barcode_str", barcodeStr);
+    //
+    //           scanSuccessCallback.sendPluginResult(new PluginResult(PluginResult.Status.OK, json));
+    //           mScanManager.stopDecode();
+    //           mScanManager.closeScanner();
+    //         } catch (JSONException e) {
+    //             //some exception handler code.
+    //         }
+    //
+    //     }
+    //
+    // };
 
 
     @Override
