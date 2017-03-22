@@ -1,5 +1,9 @@
 var exec = require('cordova/exec');
 
+exports.printerStatus = function(success, error) {
+    exec(success, error, "Wepoy", "printerStatus", []);
+};
+
 exports.printLine = function(text, success, error) {
     exec(success, error, "Wepoy", "printLine", [text]);
 };
