@@ -173,14 +173,14 @@ public class Wepoy extends CordovaPlugin {
             if(status == 0) {
                 callbackContext.success("Ok");
             } else if(status == -1) {
-                callbackContext.error("Printer out of paper");
+                callbackContext.error("PRINTER_OUT_OF_PAPER");
             } else {
-                callbackContext.error("Printer overheated");
+                callbackContext.error("PRINTER_OVERHEATED");
             }
         }
         else {
             // printer could not be opened
-                callbackContext.error("Error opening printer");
+                callbackContext.error("PRINTER_ERROR_OPENING_PRINTER");
         }
     }
 
@@ -191,9 +191,9 @@ public class Wepoy extends CordovaPlugin {
             int status = printer.getStatus();
             if(status != 0) {
                 if(status == -1) {
-                    callbackContext.error("Printer out of paper");
+                    callbackContext.error("PRINTER_OUT_OF_PAPER");
                 } else {
-                    callbackContext.error("Printer overheated");
+                    callbackContext.error("PRINTER_OVERHEATED");
                 }
                 // abort, as printer is not ready
                 return;
@@ -211,7 +211,7 @@ public class Wepoy extends CordovaPlugin {
                         callbackContext.error("Error while printing page");
                     }
                 } else {
-                    callbackContext.error("Error drawTextEx in print");
+                    callbackContext.error("Error drawTextEx in print: ret = " + ret);
                 }
             } else {
                 callbackContext.error("Error setting up printer page");
@@ -228,9 +228,9 @@ public class Wepoy extends CordovaPlugin {
             int status = printer.getStatus();
             if(status != 0) {
                 if(status == -1) {
-                    callbackContext.error("Printer out of paper");
+                    callbackContext.error("PRINTER_OUT_OF_PAPER");
                 } else {
-                    callbackContext.error("Printer overheated");
+                    callbackContext.error("PRINTER_OVERHEATED");
                 }
                 // abort, as printer is not ready
                 return;
@@ -265,9 +265,9 @@ public class Wepoy extends CordovaPlugin {
         int status = printer.getStatus();
         if(status != 0) {
             if(status == -1) {
-                callbackContext.error("Printer out of paper");
+                callbackContext.error("PRINTER_OUT_OF_PAPER");
             } else {
-                callbackContext.error("Printer overheated");
+                callbackContext.error("PRINTER_OVERHEATED");
             }
             // abort, as printer is not ready
             return;
