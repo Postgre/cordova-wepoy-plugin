@@ -61,11 +61,8 @@ public class Wepoy extends CordovaPlugin {
             } catch (JSONException e) {
                 //some exception handler code.
             }
-
         }
-
     };
-
 
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
@@ -170,6 +167,7 @@ public class Wepoy extends CordovaPlugin {
         if(printer.open() == 0) {
 
             int status = printer.getStatus();
+            android.util.Log.i("debug", "printerStatus: " + status);
             if(status == 0) {
                 callbackContext.success("Ok");
             } else if(status == -1) {
