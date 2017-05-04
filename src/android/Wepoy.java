@@ -33,7 +33,7 @@ import android.device.MagManager;
 // BARCODE_FLAT	28 in printer
 public class Wepoy extends CordovaPlugin {
 
-    private PrinterManager printer;
+    private PrinterManager printer = new PrinterManager();
 
     private final static String SCAN_ACTION = ScanManager.ACTION_DECODE;
     private ScanManager mScanManager;
@@ -61,15 +61,19 @@ public class Wepoy extends CordovaPlugin {
             } catch (JSONException e) {
                 //some exception handler code.
             }
-
         }
-
     };
-
 
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-        printer = new PrinterManager();
+
+        android.util.Log.i("debug", "WepoyPlugin execute: " + action);
+
+        if(action.equals("printerStatus")) {
+            this.printerStatus(callbackContext);
+            return true;
+        }
+
         if (action.equals("printLine")) {
 
             String message = args.getString(0);
@@ -79,7 +83,13 @@ public class Wepoy extends CordovaPlugin {
 
             int printerOpened = printer.open();
 
-            this.printLine(message, fontName, fontSize, fontStyle, callbackContext);
+            if(printerOpened == 0) {
+                this.printLine(message, fontName, fontSize, fontStyle, callbackContext);
+            }
+            else {
+                // printer could not be opened
+                callbackContext.error("Error opening printer");
+            }
             return true;
         }
 
@@ -95,9 +105,16 @@ public class Wepoy extends CordovaPlugin {
         if (action.equals("printCode")) {
             String message = args.getString(0);
             int codeType = args.getInt(1);
+
             int printerOpened = printer.open();
 
-            this.printCode(message, codeType, callbackContext);
+            if(printerOpened == 0) {
+                this.printCode(message, codeType, callbackContext);
+            }
+            else {
+                // printer could not be opened
+                callbackContext.error("Error opening printer");
+            }
             return true;
         }
 
@@ -105,7 +122,12 @@ public class Wepoy extends CordovaPlugin {
             int amount = args.getInt(0);
             int printerOpened = printer.open();
 
-            this.paperFeed(amount, callbackContext);
+            if(printerOpened == 0) {
+                this.paperFeed(amount, callbackContext);
+            } else {
+                // printer could not be opened
+                callbackContext.error("Error opening printer");
+            }
             return true;
         }
 
@@ -122,7 +144,7 @@ public class Wepoy extends CordovaPlugin {
 
         if (action.equals("enableScanner")) {
             mScanManager = new ScanManager();
-            mScanManager.openScanner();
+            boolean res = mScanManager.openScanner();
             mScanManager.switchOutputMode(0);
             if(mScanManager.getTriggerMode() != Triggering.CONTINUOUS)
                 mScanManager.setTriggerMode(Triggering.CONTINUOUS);
@@ -154,19 +176,61 @@ public class Wepoy extends CordovaPlugin {
         super.initialize(cordova, webView);
     }
 
+    private void printerStatus(CallbackContext callbackContext) {
+
+        if(printer.open() == 0) {
+
+            int status = printer.getStatus();
+            android.util.Log.i("debug", "printerStatus: " + status);
+            if(status == 0) {
+                callbackContext.success("Ok");
+            } else if(status == -1) {
+                callbackContext.error("PRINTER_OUT_OF_PAPER");
+            } else {
+                callbackContext.error("PRINTER_OVERHEATED");
+            }
+        }
+        else {
+            // printer could not be opened
+                callbackContext.error("PRINTER_ERROR_OPENING_PRINTER");
+        }
+    }
+
     // "courier", 21
     private void printLine(String message, String fontName, int fontSize, int fontStyle, CallbackContext callbackContext) {
         if (message != null && message.length() > 0) {
-            int ret;
-            printer.setupPage(384, -1);
-            ret = printer.drawTextEx(message, 0, 0, 384, -1, fontName, fontSize, 0, fontStyle, 0);
-            ret = printer.printPage(0);
 
-            int status  = printer.getStatus();
+            // first lets check the printer status
+            int status = printer.getStatus();
+            if(status != 0) {
+                if(status == -1) {
+                    callbackContext.error("PRINTER_OUT_OF_PAPER");
+                } else {
+                    callbackContext.error("PRINTER_OVERHEATED");
+                }
+                // abort, as printer is not ready
+                return;
+            }
 
-            callbackContext.success(message + " printPage: " + ret + " status: " + status);
+            int res = printer.setupPage(384, -1);
+            if(res == 0) {
+
+                ret = printer.drawTextEx(message, 0, 0, 384, -1, fontName, fontSize, 0, fontStyle, 0);
+                if(ret > -1) {
+                    ret = printer.printPage(0);
+                    if(ret == 0) {
+                        callbackContext.success(message + " printPage: " + ret + " status: " + status);
+                    } else {
+                        callbackContext.error("Error while printing page");
+                    }
+                } else {
+                    callbackContext.error("Error drawTextEx in print: ret = " + ret);
+                }
+            } else {
+                callbackContext.error("Error setting up printer page");
+            }
         } else {
-            callbackContext.error("Expected one non-empty string argument.");
+            callbackContext.error("Expected one non-empty string argument");
         }
     }
 
@@ -186,25 +250,58 @@ public class Wepoy extends CordovaPlugin {
 
     private void printCode(String message, int codeType, CallbackContext callbackContext) {
         if (message != null && message.length() > 0) {
-            int ret;
-            printer.setupPage(384, -1);
-            int bcret = printer.drawBarcode(message, 100, 10, codeType, 8, 240, 0);
-            if (bcret == -1 ) {
-              callbackContext.error("Code printing error");
+
+            // first lets check the printer status
+            int status = printer.getStatus();
+            if(status != 0) {
+                if(status == -1) {
+                    callbackContext.error("PRINTER_OUT_OF_PAPER");
+                } else {
+                    callbackContext.error("PRINTER_OVERHEATED");
+                }
+                // abort, as printer is not ready
+                return;
             }
-            ret = printer.printPage(0);
 
-            int status  = printer.getStatus();
+            int res = printer.setupPage(384, -1);
+            if(res == 0) {
+                int bcret = printer.drawBarcode(message, 100, 10, codeType, 8, 240, 0);
+                if (bcret > -1 ) {
 
-            callbackContext.success(message + " printPage: " + ret + " status: " + status);
+                    int ret = printer.printPage(0);
+                    if(ret == 0) {
+                        callbackContext.success(message + " printPage: " + ret + " status: " + status);
+                    } else {
+                        callbackContext.error("Error printing page");
+                    }
+                } else {
+                    callbackContext.error("Drawbarcode printing error");
+                }
+            }
+            else {
+                callbackContext.error("Error setting up printer page");
+            }
         } else {
-            callbackContext.error("Expected one non-empty string argument.");
+            callbackContext.error("Expected one non-empty string argument");
         }
     }
 
     private void paperFeed(int amount,CallbackContext callbackContext) {
-      printer.paperFeed(amount);
-      callbackContext.success("paperFeed successful");
+        
+        // first lets check the printer status
+        int status = printer.getStatus();
+        if(status != 0) {
+            if(status == -1) {
+                callbackContext.error("PRINTER_OUT_OF_PAPER");
+            } else {
+                callbackContext.error("PRINTER_OVERHEATED");
+            }
+            // abort, as printer is not ready
+            return;
+        }
+
+        printer.paperFeed(amount);
+        callbackContext.success("paperFeed successful");
     }
 
 
