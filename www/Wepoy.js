@@ -1,7 +1,12 @@
 var exec = require('cordova/exec');
 
-exports.printLine = function(text, success, error) {
-    exec(success, error, "Wepoy", "printLine", [text]);
+exports.printLine = function(text, fontName, fontSize, fontStyle, success, error) {
+    exec(success, error, "Wepoy", "printLine", [text, fontName, fontSize, fontStyle]);
+};
+
+exports.setGrayLevel = function(level, success, error) {
+    console.log("setGrayLevel: " + level);
+    exec(success, error, "Wepoy", "setGrayLevel", [level]);
 };
 
 exports.printCode = function(text, codeType, success, error) {
