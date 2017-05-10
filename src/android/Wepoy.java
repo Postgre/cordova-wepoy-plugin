@@ -75,16 +75,30 @@ public class Wepoy extends CordovaPlugin {
         }
 
         if (action.equals("printLine")) {
+
             String message = args.getString(0);
+            String fontName = args.getString(1);
+            int fontSize = args.getInt(2);
+            int fontStyle = args.getInt(3);
+
             int printerOpened = printer.open();
-            
+
             if(printerOpened == 0) {
-                this.printLine(message, callbackContext);
+                this.printLine(message, fontName, fontSize, fontStyle, callbackContext);
             }
             else {
                 // printer could not be opened
                 callbackContext.error("Error opening printer");
             }
+            return true;
+        }
+
+        if (action.equals("setGrayLevel")) {
+
+            int level = args.getInt(0);
+            int printerOpened = printer.open();
+
+            this.setGrayLevel(level, callbackContext);
             return true;
         }
 
@@ -182,7 +196,8 @@ public class Wepoy extends CordovaPlugin {
         }
     }
 
-    private void printLine(String message, CallbackContext callbackContext) {
+    // "courier", 21
+    private void printLine(String message, String fontName, int fontSize, int fontStyle, CallbackContext callbackContext) {
         if (message != null && message.length() > 0) {
 
             // first lets check the printer status
@@ -200,7 +215,7 @@ public class Wepoy extends CordovaPlugin {
             int res = printer.setupPage(384, -1);
             if(res == 0) {
 
-                int ret = printer.drawTextEx(message, 0, 0, 384, -1, "courier", 21, 0, 0, 0);
+                ret = printer.drawTextEx(message, 0, 0, 384, -1, fontName, fontSize, 0, fontStyle, 0);
                 if(ret > -1) {
                     ret = printer.printPage(0);
                     if(ret == 0) {
@@ -216,6 +231,20 @@ public class Wepoy extends CordovaPlugin {
             }
         } else {
             callbackContext.error("Expected one non-empty string argument");
+        }
+    }
+
+    private void setGrayLevel(int level, CallbackContext callbackContext) {
+        if (level >= 0 && level <= 30) {
+            int ret;
+            printer.setGrayLevel(level);
+
+            int status  = printer.getStatus();
+            android.util.Log.i("debug", "setGrayLevel success");
+            callbackContext.success("setGrayLevel: printerStatus: " + status);
+        } else {
+            android.util.Log.i("debug", "setGrayLevel error");
+            callbackContext.error("Gray level must be in the range of 0 to 30. Your value is : " + level);
         }
     }
 
